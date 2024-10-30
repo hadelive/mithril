@@ -139,6 +139,8 @@ impl BlockStreamer for DumbBlockStreamer {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use crate::cardano_block_scanner::BlockStreamerTestExtensions;
 
     use super::*;
@@ -159,6 +161,7 @@ mod tests {
             BlockNumber(1),
             SlotNumber(10),
             Vec::<&str>::new(),
+            HashMap::new(),
         )];
         let mut streamer = DumbBlockStreamer::new().forwards(vec![expected_blocks.clone()]);
 
@@ -180,16 +183,30 @@ mod tests {
                 BlockNumber(1),
                 SlotNumber(10),
                 Vec::<&str>::new(),
+                HashMap::new(),
             )],
             vec![
-                ScannedBlock::new("hash-2", BlockNumber(2), SlotNumber(11), Vec::<&str>::new()),
-                ScannedBlock::new("hash-3", BlockNumber(3), SlotNumber(12), Vec::<&str>::new()),
+                ScannedBlock::new(
+                    "hash-2",
+                    BlockNumber(2),
+                    SlotNumber(11),
+                    Vec::<&str>::new(),
+                    HashMap::new(),
+                ),
+                ScannedBlock::new(
+                    "hash-3",
+                    BlockNumber(3),
+                    SlotNumber(12),
+                    Vec::<&str>::new(),
+                    HashMap::new(),
+                ),
             ],
             vec![ScannedBlock::new(
                 "hash-4",
                 BlockNumber(4),
                 SlotNumber(13),
                 Vec::<&str>::new(),
+                HashMap::new(),
             )],
         ];
         let mut streamer = DumbBlockStreamer::new().forwards(expected_blocks.clone());
@@ -223,6 +240,7 @@ mod tests {
             BlockNumber(1),
             SlotNumber(10),
             Vec::<&str>::new(),
+            HashMap::new(),
         )];
 
         let scanner = DumbBlockScanner::new().forwards(vec![expected_blocks.clone()]);
@@ -239,6 +257,7 @@ mod tests {
             BlockNumber(1),
             SlotNumber(10),
             Vec::<&str>::new(),
+            HashMap::new(),
         )];
         let expected_chain_point = ChainPoint::new(SlotNumber(10), BlockNumber(2), "block-hash");
 
@@ -270,12 +289,14 @@ mod tests {
                 BlockNumber(1),
                 SlotNumber(10),
                 Vec::<&str>::new(),
+                HashMap::new(),
             )],
             vec![ScannedBlock::new(
                 "hash-4",
                 BlockNumber(4),
                 SlotNumber(13),
                 Vec::<&str>::new(),
+                HashMap::new(),
             )],
         ];
 

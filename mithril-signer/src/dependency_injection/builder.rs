@@ -317,12 +317,15 @@ impl<'a> DependenciesBuilder<'a> {
             self.config.transactions_import_block_chunk_size,
             self.root_logger(),
         ));
-        let block_range_root_retriever = transaction_store.clone();
+        let block_range_root_retriever: Arc<CardanoTransactionRepository> =
+            transaction_store.clone();
+        let transaction_retriever = transaction_store.clone();
         let cardano_transactions_builder = Arc::new(CardanoTransactionsSignableBuilder::<
             MKTreeStoreSqlite,
         >::new(
             state_machine_transactions_importer,
             block_range_root_retriever,
+            transaction_retriever,
         ));
         let cardano_stake_distribution_signable_builder = Arc::new(
             CardanoStakeDistributionSignableBuilder::new(stake_store.clone()),

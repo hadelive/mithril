@@ -109,6 +109,7 @@ impl MultiSigner for MultiSignerImpl {
         self.run_verify_single_signature(message, single_signature, next_protocol_multi_signer)
     }
 
+    // TODO(hadelive): update this?
     /// Creates a multi signature from single signatures
     async fn create_multi_signature(
         &self,

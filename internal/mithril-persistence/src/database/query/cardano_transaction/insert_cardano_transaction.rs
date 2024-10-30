@@ -20,8 +20,8 @@ impl InsertCardanoTransactionQuery {
 
     /// Query that insert multiples records.
     pub fn insert_many(transactions_records: Vec<CardanoTransactionRecord>) -> StdResult<Self> {
-        let columns = "(transaction_hash, block_number, slot_number, block_hash)";
-        let values_columns: Vec<&str> = repeat("(?*, ?*, ?*, ?*)")
+        let columns = "(transaction_hash, block_number, slot_number, block_hash, bridge_metadata)";
+        let values_columns: Vec<&str> = repeat("(?*, ?*, ?*, ?*, ?*)")
             .take(transactions_records.len())
             .collect();
 
@@ -34,6 +34,10 @@ impl InsertCardanoTransactionQuery {
                         Value::Integer(record.block_number.try_into()?),
                         Value::Integer(record.slot_number.try_into()?),
                         Value::String(record.block_hash.clone()),
+                        match &record.bridge_metadata {
+                            Some(metadata) => Value::String(metadata.to_string()),
+                            None => Value::Null,
+                        },
                     ]);
                     Ok(vec)
                 });

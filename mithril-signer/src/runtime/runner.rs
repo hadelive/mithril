@@ -328,6 +328,7 @@ impl Runner for SignerRunner {
 
 #[cfg(test)]
 mod tests {
+    use mithril_common::signable_builder::TransactionsRetriever;
     use mockall::mock;
     use mockall::predicate::eq;
     use std::collections::BTreeSet;
@@ -401,6 +402,25 @@ mod tests {
         }
     }
 
+    mock! {
+        pub TransactionsRetrieverImpl { }
+
+        #[async_trait]
+        impl TransactionsRetriever for TransactionsRetrieverImpl {
+            async fn get_by_hashes(
+                &self,
+                hashes: Vec<mithril_common::entities::TransactionHash>,
+                up_to: BlockNumber,
+            ) -> StdResult<Vec<mithril_common::entities::CardanoTransaction>>;
+
+            /// Get by block ranges
+            async fn get_by_block_ranges(
+                &self,
+                block_ranges: Vec<BlockRange>,
+            ) -> StdResult<Vec<mithril_common::entities::CardanoTransaction>>;
+        }
+    }
+
     async fn init_services() -> SignerDependencyContainer {
         let logger = TestLogger::stdout();
         let sqlite_connection = Arc::new(main_db_connection().unwrap());
@@ -444,9 +464,15 @@ mod tests {
         ));
         let block_range_root_retriever =
             Arc::new(MockBlockRangeRootRetrieverImpl::<MKTreeStoreInMemory>::new());
-        let cardano_transactions_builder = Arc::new(CardanoTransactionsSignableBuilder::new(
+        // TODO(hadelive)
+        let transaction_retriever = Arc::new(MockTransactionsRetrieverImpl::new());
+        // transaction_retriever_mock_config(&mut transaction_retriever);
+        let cardano_transactions_builder: Arc<
+            CardanoTransactionsSignableBuilder<MKTreeStoreInMemory>,
+        > = Arc::new(CardanoTransactionsSignableBuilder::new(
             transactions_importer.clone(),
             block_range_root_retriever,
+            transaction_retriever,
         ));
         let stake_store = Arc::new(StakeStore::new(Box::new(DumbStoreAdapter::new()), None));
         let cardano_stake_distribution_builder = Arc::new(

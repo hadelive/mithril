@@ -54,6 +54,7 @@ pub enum SignedEntityType {
     CardanoImmutableFilesFull(CardanoDbBeacon),
 
     /// Cardano Transactions
+    /// TODO(hadelive): should modify this?
     CardanoTransactions(Epoch, BlockNumber),
 }
 

@@ -129,6 +129,7 @@ mod tests {
             block_number,
             slot_number,
             format!("block-hash-{}", block_number),
+            None,
         )
     }
 

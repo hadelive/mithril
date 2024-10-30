@@ -89,7 +89,7 @@ impl MithrilSignableBuilderService {
                 .with_context(|| "Signable builder service can not compute protocol message for Cardano stake distribution with epoch: '{e}")?,
             SignedEntityType::CardanoTransactions(_, block_number) => self
                 .cardano_transactions_signable_builder
-                .compute_protocol_message(block_number)
+                .compute_protocol_message(block_number) // TODO(hadelive)
                 .await
                 .with_context(|| format!(
                     "Signable builder service can not compute protocol message with block_number: '{block_number}'"
@@ -132,6 +132,7 @@ impl MithrilSignableBuilderService {
 
 #[async_trait]
 impl SignableBuilderService for MithrilSignableBuilderService {
+    // TODO(hadelive)
     async fn compute_protocol_message(
         &self,
         signed_entity_type: SignedEntityType,

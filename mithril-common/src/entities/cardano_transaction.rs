@@ -3,6 +3,8 @@ use crate::{
     entities::{BlockHash, BlockNumber, SlotNumber},
 };
 
+use super::BridgeTransactionMetadata;
+
 /// TransactionHash is the unique identifier of a cardano transaction.
 pub type TransactionHash = String;
 
@@ -20,6 +22,9 @@ pub struct CardanoTransaction {
 
     /// Block hash of the transaction
     pub block_hash: BlockHash,
+
+    /// Bridge transaction metadata
+    pub bridge_metadata: Option<BridgeTransactionMetadata>,
 }
 
 impl CardanoTransaction {
@@ -29,12 +34,14 @@ impl CardanoTransaction {
         block_number: BlockNumber,
         slot_number: SlotNumber,
         block_hash: U,
+        bridge_tx_metadata: Option<BridgeTransactionMetadata>,
     ) -> Self {
         Self {
             transaction_hash: hash.into(),
             block_number,
             slot_number,
             block_hash: block_hash.into(),
+            bridge_metadata: bridge_tx_metadata, // TODO(hadelive)
         }
     }
 }
@@ -57,8 +64,13 @@ mod tests {
 
     #[test]
     fn test_convert_cardano_transaction_to_merkle_tree_node() {
-        let transaction =
-            CardanoTransaction::new("tx-hash-123", BlockNumber(10), SlotNumber(4), "block_hash");
+        let transaction = CardanoTransaction::new(
+            "tx-hash-123",
+            BlockNumber(10),
+            SlotNumber(4),
+            "block_hash",
+            None,
+        );
 
         let computed_mktree_node: MKTreeNode = transaction.into();
         let expected_mk_tree_node = MKTreeNode::new("tx-hash-123".as_bytes().to_vec());

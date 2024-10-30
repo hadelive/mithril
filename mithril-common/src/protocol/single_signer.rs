@@ -48,7 +48,9 @@ impl SingleSigner {
 #[cfg(test)]
 mod test {
     use crate::{
-        entities::ProtocolMessage, protocol::SignerBuilder, test_utils::MithrilFixtureBuilder,
+        entities::{BridgeTransactionMetadata, ProtocolMessage, ProtocolMessagePartKey},
+        protocol::SignerBuilder,
+        test_utils::MithrilFixtureBuilder,
     };
 
     #[test]
@@ -68,10 +70,96 @@ mod test {
         )
         .unwrap();
 
+        println!(
+            "protocol_message: {:#?}",
+            build_protocol_message_reference()
+        );
+        // protocol_message: ProtocolMessage {
+        //     message_parts: {
+        //         SnapshotDigest: "snapshot-digest-123",
+        //         CardanoTransactionsMerkleRoot: "ctx-merkle-root-123",
+        //         NextAggregateVerificationKey: "next-avk-123",
+        //         NextProtocolParameters: "next-protocol-parameters-123",
+        //         LatestBlockNumber: "latest-immutable-file-number-123",
+        //         CardanoStakeDistributionEpoch: "cardano-stake-distribution-epoch-123",
+        //         CardanoStakeDistributionMerkleRoot: "cardano-stake-distribution-merkle-root-123",
+        //         BridgeTransaction(
+        //             "ddc3e082930982c541b3b3ce9046b8325253ce046784d57d83657cab3105a80b",
+        //         ): "BridgeTransactionMetadata { tx_id: ddc3e082930982c541b3b3ce9046b8325253ce046784d57d83657cab3105a80b, sender_address: addr_test1qz0ugv82ruadcg8whwqnkfjfapwfxn49hsfa0dlmu2eyu5zsvjm8zc6dzn9c64p7w8wcadph53l0k3askg5g9pnvggxsvy935c, recipient_address: addr_test1qz0ugv82ruadcg8whwqnkfjfapwfxn49hsfa0dlmu2eyu5zsvjm8zc6dzn9c64p7w8wcadph53l0k3askg5g9pnvggxsvy935c, amount: 10 }",
+        //     },
+        // }
         let signature = single_signer
             .sign(&ProtocolMessage::default())
             .expect("Single signer should be able to issue single signature");
 
+        //TODO(hadelive): more tests
+        println!("signature: {:#?}", signature);
+        // signature: Some(
+        //     SingleSignatures {
+        //         party_id: "pool1mxyec46067n3querj9cxkk0g0zlag93pf3ya9vuyr3wgkq2e6t7",
+        //         won_indexes: [0, 3, 4, 5, 6, 12, 13, 16, 19, 20, 24, 25, 26, 29, 31, 33, 40, 41, 43, 46, 50, 52, 54, 56, 58, 61, 66, 67, 68, 69, 71, 72, 73, 75, 76, 77, 79, 81, 84, 85, 90, 93, 95, 96, 99],
+        //         signature: ProtocolKey {
+        //             key: StmSig {
+        //                 sigma: Signature(
+        //                     Signature {
+        //                         point: blst_p1_affine {
+        //                             x: blst_fp { l: [7468703594731719401, 10197996683465477009, 3082409773008296218, 6726611150551627533, 2934973867345584233, 114070374610589203] },
+        //                             y: blst_fp { l: [2816661372522790803, 16737079611916699471, 16136221138828585368, 4999260321470034684, 1232514026492399476, 1538651617220385808] } }
+        //                     }
+        //                 ),
+        //                 indexes: [0, 3, 4, 5, 6, 12, 13, 16, 19, 20, 24, 25, 26, 29, 31, 33, 40, 41, 43, 46, 50, 52, 54, 56, 58, 61, 66, 67, 68, 69, 71, 72, 73, 75, 76, 77, 79, 81, 84, 85, 90, 93, 95, 96, 99],
+        //                 signer_index: 2
+        //             }
+        //         },
+        //     },
+        // )
         assert!(signature.is_some());
+    }
+
+    fn build_protocol_message_reference() -> ProtocolMessage {
+        let mut protocol_message = ProtocolMessage::new();
+        protocol_message.set_message_part(
+            ProtocolMessagePartKey::SnapshotDigest,
+            "snapshot-digest-123".to_string(),
+        );
+        protocol_message.set_message_part(
+            ProtocolMessagePartKey::NextAggregateVerificationKey,
+            "next-avk-123".to_string(),
+        );
+        protocol_message.set_message_part(
+            ProtocolMessagePartKey::NextProtocolParameters,
+            "next-protocol-parameters-123".to_string(),
+        );
+        protocol_message.set_message_part(
+            ProtocolMessagePartKey::CardanoTransactionsMerkleRoot,
+            "ctx-merkle-root-123".to_string(),
+        );
+        protocol_message.set_message_part(
+            ProtocolMessagePartKey::LatestBlockNumber,
+            "latest-immutable-file-number-123".to_string(),
+        );
+        protocol_message.set_message_part(
+            ProtocolMessagePartKey::CardanoStakeDistributionEpoch,
+            "cardano-stake-distribution-epoch-123".to_string(),
+        );
+        protocol_message.set_message_part(
+            ProtocolMessagePartKey::CardanoStakeDistributionMerkleRoot,
+            "cardano-stake-distribution-merkle-root-123".to_string(),
+        );
+
+        let tx_metadata = BridgeTransactionMetadata {
+            tx_id: "ddc3e082930982c541b3b3ce9046b8325253ce046784d57d83657cab3105a80b".to_string(),
+            sender_address: "addr_test1qz0ugv82ruadcg8whwqnkfjfapwfxn49hsfa0dlmu2eyu5zsvjm8zc6dzn9c64p7w8wcadph53l0k3askg5g9pnvggxsvy935c".to_string(),
+            recipient_address: "addr_test1qz0ugv82ruadcg8whwqnkfjfapwfxn49hsfa0dlmu2eyu5zsvjm8zc6dzn9c64p7w8wcadph53l0k3askg5g9pnvggxsvy935c".to_string(),
+            amount: 10,
+        };
+        protocol_message.set_message_part(
+            ProtocolMessagePartKey::BridgeTransaction(
+                "ddc3e082930982c541b3b3ce9046b8325253ce046784d57d83657cab3105a80b".to_string(),
+            ),
+            tx_metadata.to_string(),
+        );
+
+        protocol_message
     }
 }

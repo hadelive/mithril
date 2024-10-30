@@ -5,7 +5,7 @@ use prometheus_parse::Value;
 use slog::Drain;
 use slog_scope::debug;
 use std::{
-    collections::{BTreeMap, BTreeSet},
+    collections::{BTreeMap, BTreeSet, HashMap},
     fmt::Debug,
     path::Path,
     sync::Arc,
@@ -207,11 +207,13 @@ impl StateMachineTester {
             logger.clone(),
         ));
         let block_range_root_retriever = transaction_store.clone();
+        let transaction_retriever = transaction_store.clone();
         let cardano_transactions_builder = Arc::new(CardanoTransactionsSignableBuilder::<
             MKTreeStoreSqlite,
         >::new(
             transactions_importer.clone(),
             block_range_root_retriever,
+            transaction_retriever,
         ));
         let cardano_stake_distribution_builder = Arc::new(
             CardanoStakeDistributionSignableBuilder::new(stake_store.clone()),
@@ -550,6 +552,7 @@ impl StateMachineTester {
                     block_number,
                     slot_number,
                     vec![format!("tx_hash-{block_number}-1")],
+                    HashMap::new(),
                 )
             })
             .collect();

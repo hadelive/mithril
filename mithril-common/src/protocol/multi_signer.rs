@@ -25,6 +25,7 @@ impl MultiSigner {
         }
     }
 
+    // TODO(hadelive): aggregate_single_signatures
     /// Aggregate the given single signatures into a multi-signature
     pub fn aggregate_single_signatures<T: ToMessage>(
         &self,

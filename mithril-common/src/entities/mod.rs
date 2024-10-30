@@ -43,7 +43,10 @@ pub use certificate_pending::CertificatePending;
 pub use epoch::{Epoch, EpochError};
 pub use http_server_error::{ClientError, ServerError};
 pub use mithril_stake_distribution::MithrilStakeDistribution;
-pub use protocol_message::{ProtocolMessage, ProtocolMessagePartKey, ProtocolMessagePartValue};
+pub use protocol_message::{
+    BridgeTransactionMetadata, FromPlutusData, ProtocolMessage, ProtocolMessagePartKey,
+    ProtocolMessagePartValue, ToPlutusData,
+};
 pub use protocol_parameters::ProtocolParameters;
 pub use signed_entity::*;
 pub use signed_entity_config::*;

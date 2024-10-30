@@ -5,7 +5,9 @@ use async_trait::async_trait;
 
 use crate::{
     crypto_helper::{MKMap, MKMapNode, MKTreeNode, MKTreeStorer},
-    entities::{BlockNumber, BlockRange, ProtocolMessage, ProtocolMessagePartKey},
+    entities::{
+        BlockNumber, BlockRange, BridgeTransactionMetadata, ProtocolMessage, ProtocolMessagePartKey,
+    },
     signable_builder::SignableBuilder,
     StdResult,
 };
@@ -47,10 +49,29 @@ pub trait BlockRangeRootRetriever<S: MKTreeStorer>: Send + Sync {
     }
 }
 
+/// Transactions retriever
+#[cfg_attr(test, mockall::automock)]
+#[async_trait]
+pub trait TransactionsRetriever: Sync + Send {
+    /// Get a list of transactions by hashes using chronological order
+    async fn get_by_hashes(
+        &self,
+        hashes: Vec<crate::entities::TransactionHash>,
+        up_to: BlockNumber,
+    ) -> StdResult<Vec<crate::entities::CardanoTransaction>>;
+
+    /// Get by block ranges
+    async fn get_by_block_ranges(
+        &self,
+        block_ranges: Vec<BlockRange>,
+    ) -> StdResult<Vec<crate::entities::CardanoTransaction>>;
+}
+
 /// A [CardanoTransactionsSignableBuilder] builder
 pub struct CardanoTransactionsSignableBuilder<S: MKTreeStorer> {
     transaction_importer: Arc<dyn TransactionsImporter>,
     block_range_root_retriever: Arc<dyn BlockRangeRootRetriever<S>>,
+    transaction_retriever: Arc<dyn TransactionsRetriever>,
 }
 
 impl<S: MKTreeStorer> CardanoTransactionsSignableBuilder<S> {
@@ -58,16 +79,19 @@ impl<S: MKTreeStorer> CardanoTransactionsSignableBuilder<S> {
     pub fn new(
         transaction_importer: Arc<dyn TransactionsImporter>,
         block_range_root_retriever: Arc<dyn BlockRangeRootRetriever<S>>,
+        transaction_retriever: Arc<dyn TransactionsRetriever>,
     ) -> Self {
         Self {
             transaction_importer,
             block_range_root_retriever,
+            transaction_retriever,
         }
     }
 }
 
 #[async_trait]
 impl<S: MKTreeStorer> SignableBuilder<BlockNumber> for CardanoTransactionsSignableBuilder<S> {
+    // TODO(hadelive): update protocol message here
     async fn compute_protocol_message(&self, beacon: BlockNumber) -> StdResult<ProtocolMessage> {
         self.transaction_importer.import(beacon).await?;
 
@@ -78,6 +102,8 @@ impl<S: MKTreeStorer> SignableBuilder<BlockNumber> for CardanoTransactionsSignab
             .compute_root()?;
 
         let mut protocol_message = ProtocolMessage::new();
+        // contains all the bridge txs in the block
+        // TODO(hadelive): need to store all the bridge txs and the metadata
         protocol_message.set_message_part(
             ProtocolMessagePartKey::CardanoTransactionsMerkleRoot,
             mk_root.to_hex(),
@@ -86,6 +112,30 @@ impl<S: MKTreeStorer> SignableBuilder<BlockNumber> for CardanoTransactionsSignab
             ProtocolMessagePartKey::LatestBlockNumber,
             beacon.to_string(),
         );
+        // Retrieve the bridge transactions for the current block
+        let bridge_transactions: Vec<BridgeTransactionMetadata> = self
+            .transaction_retriever
+            .get_by_block_ranges(vec![BlockRange::from_block_number_and_length(
+                beacon,
+                BlockNumber(1),
+            )
+            .unwrap()])
+            .await?
+            .iter()
+            .filter_map(|transaction| transaction.bridge_metadata.clone())
+            .collect();
+
+        // Iterate through each bridge transaction and add metadata to the protocol message
+        for tx in bridge_transactions {
+            // Create a ProtocolMessagePartKey for the bridge transaction using the transaction ID
+            let bridge_tx_key = ProtocolMessagePartKey::BridgeTransaction(tx.tx_id.to_string());
+
+            // Store the metadata in the protocol message
+            protocol_message.set_message_part(
+                bridge_tx_key,               // Use the key that contains the transaction ID
+                serde_json::to_string(&tx)?, // Serialize the struct to a JSON string
+            );
+        }
 
         Ok(protocol_message)
     }
@@ -117,6 +167,9 @@ mod tests {
     async fn test_compute_signable() {
         // Arrange
         let block_number = BlockNumber(1453);
+        // TODO(hadelive)
+        let transaction_retriever = MockTransactionsRetriever::new();
+        // transaction_retriever_mock_config(&mut transaction_retriever);
         let transactions = CardanoTransactionsBuilder::new().build_transactions(3);
         let mk_map = compute_mk_map_from_transactions(transactions.clone());
         let mut transaction_importer = MockTransactionsImporter::new();
@@ -132,6 +185,7 @@ mod tests {
         let cardano_transactions_signable_builder = CardanoTransactionsSignableBuilder::new(
             Arc::new(transaction_importer),
             Arc::new(block_range_root_retriever),
+            Arc::new(transaction_retriever),
         );
 
         // Action
@@ -156,6 +210,9 @@ mod tests {
     #[tokio::test]
     async fn test_compute_signable_with_no_block_range_root_return_error() {
         let block_number = BlockNumber(50);
+        let transaction_retriever = MockTransactionsRetriever::new();
+        // TODO(hadelive)
+        // transaction_retriever_mock_config(&mut transaction_retriever);
         let mut transaction_importer = MockTransactionsImporter::new();
         transaction_importer.expect_import().return_once(|_| Ok(()));
         let mut block_range_root_retriever = MockBlockRangeRootRetriever::new();
@@ -165,6 +222,7 @@ mod tests {
         let cardano_transactions_signable_builder = CardanoTransactionsSignableBuilder::new(
             Arc::new(transaction_importer),
             Arc::new(block_range_root_retriever),
+            Arc::new(transaction_retriever),
         );
 
         let result = cardano_transactions_signable_builder

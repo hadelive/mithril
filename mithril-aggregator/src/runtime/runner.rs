@@ -228,6 +228,7 @@ impl AggregatorRunnerTrait for AggregatorRunner {
             .with_context(|| format!("CertifierService can not get open message for signed_entity_type: '{signed_entity_type}'"))?)
     }
 
+    //TODO(hadelive): update OpenMessage
     async fn get_current_non_certified_open_message(
         &self,
         current_time_point: &TimePoint,
@@ -243,6 +244,7 @@ impl AggregatorRunnerTrait for AggregatorRunner {
                 .with_context(|| format!("AggregatorRunner can not get current open message for signed entity type: '{}'", &signed_entity_type))?;
             match current_open_message {
                 None => {
+                    // TODO(hadelive): update protocol message
                     let protocol_message = self.compute_protocol_message(&signed_entity_type).await.with_context(|| format!("AggregatorRunner can not compute protocol message for signed_entity_type: '{signed_entity_type}'"))?;
                     let open_message_new = self.create_open_message(&signed_entity_type, &protocol_message)
                         .await
@@ -315,6 +317,7 @@ impl AggregatorRunnerTrait for AggregatorRunner {
             .await
     }
 
+    // TODO(hadelive)
     async fn compute_protocol_message(
         &self,
         signed_entity_type: &SignedEntityType,

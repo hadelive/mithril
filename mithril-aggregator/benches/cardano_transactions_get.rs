@@ -36,6 +36,7 @@ fn generate_transactions(nb_transactions: usize) -> Vec<CardanoTransaction> {
                 BlockNumber(i as u64),
                 SlotNumber(i as u64 * 100),
                 format!("block_hash-{}", i),
+                None,
             )
         })
         .collect()

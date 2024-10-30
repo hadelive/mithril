@@ -13,6 +13,7 @@ pub struct ProtocolParameters {
 
     /// f in phi(w) = 1 - (1 - f)^w, where w is the stake of a participant
     pub phi_f: f64,
+    // may add more parameters here
 }
 
 impl ProtocolParameters {

@@ -39,6 +39,8 @@ impl ChainBlockReader for FakeChainReader {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use crate::cardano_block_scanner::ScannedBlock;
     use crate::entities::{BlockNumber, SlotNumber};
 
@@ -53,6 +55,7 @@ mod tests {
                     BlockNumber(1),
                     SlotNumber(10),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
             ChainBlockNextAction::RollForward {
@@ -61,6 +64,7 @@ mod tests {
                     BlockNumber(2),
                     SlotNumber(11),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
             ChainBlockNextAction::RollBackward {

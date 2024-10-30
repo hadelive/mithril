@@ -515,6 +515,7 @@ impl<D: Digest + Clone + FixedOutput> StmClerk<D> {
         }
     }
 
+    // TODO(hadelive): aggregate
     /// Aggregate a set of signatures for their corresponding indices.
     ///
     /// This function first deduplicates the repeated signatures, and if there are enough signatures, it collects the merkle tree indexes of unique signatures.

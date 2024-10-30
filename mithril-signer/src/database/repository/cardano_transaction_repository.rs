@@ -56,6 +56,22 @@ impl TransactionStore for CardanoTransactionRepository {
     }
 }
 
+// #[async_trait]
+// pub trait TransactionsRetriever: Sync + Send {
+//     /// Get a list of transactions by hashes using chronological order
+//     async fn get_by_hashes(
+//         &self,
+//         hashes: Vec<TransactionHash>,
+//         up_to: BlockNumber,
+//     ) -> StdResult<Vec<CardanoTransaction>>;
+
+//     /// Get by block ranges
+//     async fn get_by_block_ranges(
+//         &self,
+//         block_ranges: Vec<BlockRange>,
+//     ) -> StdResult<Vec<CardanoTransaction>>;
+// }
+
 #[async_trait]
 impl TransactionPruner for CardanoTransactionRepository {
     async fn prune(&self, number_of_blocks_to_keep: BlockNumber) -> StdResult<()> {

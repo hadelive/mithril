@@ -28,6 +28,7 @@ use mithril_common::{
 };
 use slog::Drain;
 use slog_scope::debug;
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::mpsc::UnboundedReceiver;
@@ -333,6 +334,7 @@ impl RuntimeTester {
                     block_number,
                     slot_number,
                     vec![tx_hash(*block_number, 1)],
+                    HashMap::new(),
                 )
             })
             .collect();

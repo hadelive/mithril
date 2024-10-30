@@ -1,8 +1,15 @@
+use std::{
+    collections::HashMap,
+    fmt::{Debug, Formatter},
+};
+
+use pallas_primitives::conway::PseudoDatumOption;
 use pallas_traverse::MultiEraBlock;
-use std::fmt::{Debug, Formatter};
 
-use crate::entities::{BlockNumber, CardanoTransaction, ChainPoint, SlotNumber, TransactionHash};
-
+use crate::entities::{
+    BlockNumber, BridgeTransactionMetadata, CardanoTransaction, ChainPoint, FromPlutusData,
+    SlotNumber, TransactionHash,
+};
 /// A block scanned from a Cardano database
 #[derive(Clone, PartialEq)]
 pub struct ScannedBlock {
@@ -14,6 +21,9 @@ pub struct ScannedBlock {
     pub slot_number: SlotNumber,
     /// Hashes of the transactions in the block
     pub transactions_hashes: Vec<TransactionHash>,
+
+    /// Bridge transactions mapped by transaction hash
+    pub bridge_transactions: HashMap<TransactionHash, BridgeTransactionMetadata>,
 }
 
 impl ScannedBlock {
@@ -23,19 +33,37 @@ impl ScannedBlock {
         block_number: BlockNumber,
         slot_number: SlotNumber,
         transaction_hashes: Vec<T>,
+        bridge_transactions: HashMap<TransactionHash, BridgeTransactionMetadata>,
     ) -> Self {
         Self {
             block_hash: block_hash.into(),
             block_number,
             slot_number,
             transactions_hashes: transaction_hashes.into_iter().map(|h| h.into()).collect(),
+            bridge_transactions,
         }
     }
 
     pub(crate) fn convert(multi_era_block: MultiEraBlock) -> Self {
         let mut transactions = Vec::new();
+        let mut bridge_transactions: HashMap<TransactionHash, BridgeTransactionMetadata> =
+            HashMap::new();
+        // TODO(hadelive): check bridge txs
         for tx in &multi_era_block.txs() {
             transactions.push(tx.hash().to_string());
+            for o in tx.outputs() {
+                // TODO(hadelive): read bridge_address from config
+                if o.address().unwrap().to_string() == "bridge_address" {
+                    let d = o.datum().unwrap();
+                    let data = match d {
+                        PseudoDatumOption::Data(x) => x.unwrap().unwrap(),
+                        _ => continue,
+                    };
+                    // TODO(hadelive): need a function to parse datum(PlutusData/cbor) to struct
+                    let datum = BridgeTransactionMetadata::from_plutus_data(data).unwrap();
+                    bridge_transactions.insert(tx.hash().to_string(), datum);
+                }
+            }
         }
 
         Self::new(
@@ -43,6 +71,7 @@ impl ScannedBlock {
             BlockNumber(multi_era_block.number()),
             SlotNumber(multi_era_block.slot()),
             transactions,
+            bridge_transactions,
         )
     }
 
@@ -54,16 +83,22 @@ impl ScannedBlock {
     /// Convert the scanned block into a list of Cardano transactions.
     ///
     /// Consume the block.
+    /// TODO(hadelive): add bridge metadata
     pub fn into_transactions(self) -> Vec<CardanoTransaction> {
         let block_hash = hex::encode(&self.block_hash);
         self.transactions_hashes
             .into_iter()
             .map(|transaction_hash| {
+                let metadata = self
+                    .bridge_transactions
+                    .get(&transaction_hash)
+                    .cloned();
                 CardanoTransaction::new(
                     transaction_hash,
                     self.block_number,
                     self.slot_number,
                     block_hash.clone(),
+                    metadata,
                 )
             })
             .collect::<Vec<_>>()

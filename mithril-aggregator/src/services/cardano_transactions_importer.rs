@@ -113,6 +113,7 @@ impl CardanoTransactionsImporter {
                 "highest_stored_block_number" => ?highest_stored_beacon.as_ref().map(|c| c.block_number),
             );
 
+            // TODO(hadelive): import bridge transaction
             self.parse_and_store_transactions_not_imported_yet(from, up_to_beacon)
                 .await
         }
@@ -179,6 +180,7 @@ impl CardanoTransactionsImporter {
                 .get_transactions_in_range(block_range.start..block_range.end)
                 .await?;
 
+            // TODO(hadelive): filter bridge transactions or attach transaction data (datum)
             if transactions.is_empty() {
                 continue;
             }
@@ -219,6 +221,7 @@ impl TransactionsImporter for CardanoTransactionsImporter {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use std::sync::atomic::AtomicUsize;
     use std::time::Duration;
 
@@ -270,6 +273,7 @@ mod tests {
                     BlockNumber(block_number),
                     SlotNumber(block_number * 100),
                     vec![format!("tx_hash-{}", block_number)],
+                    HashMap::new(),
                 )
             })
             .collect()
@@ -306,12 +310,14 @@ mod tests {
                 BlockNumber(10),
                 SlotNumber(15),
                 vec!["tx_hash-1", "tx_hash-2"],
+                HashMap::new(),
             ),
             ScannedBlock::new(
                 "block_hash-2",
                 BlockNumber(20),
                 SlotNumber(25),
                 vec!["tx_hash-3", "tx_hash-4"],
+                HashMap::new(),
             ),
         ];
         let expected_transactions = into_transactions(&blocks);
@@ -452,12 +458,14 @@ mod tests {
                 BlockNumber(10),
                 SlotNumber(15),
                 vec!["tx_hash-1", "tx_hash-2"],
+                HashMap::new(),
             ),
             ScannedBlock::new(
                 "block_hash-2",
                 BlockNumber(20),
                 SlotNumber(25),
                 vec!["tx_hash-3", "tx_hash-4"],
+                HashMap::new(),
             ),
         ]]);
 
@@ -466,6 +474,7 @@ mod tests {
             BlockNumber(30),
             SlotNumber(35),
             hex::encode("block_hash-3"),
+            None,
         );
         repository
             .store_transactions(vec![last_tx.clone()])
@@ -501,12 +510,14 @@ mod tests {
             highest_stored_chain_point.block_number,
             highest_stored_chain_point.slot_number,
             vec!["tx_hash-1", "tx_hash-2"],
+            HashMap::new(),
         );
         let to_store_block = ScannedBlock::new(
             "block_hash-2",
             BlockNumber(20),
             SlotNumber(229),
             vec!["tx_hash-3", "tx_hash-4"],
+            HashMap::new(),
         );
         let expected_transactions: Vec<CardanoTransaction> = [
             stored_block.clone().into_transactions(),
@@ -778,12 +789,14 @@ mod tests {
                 BlockNumber(10),
                 SlotNumber(15),
                 vec!["tx_hash-1", "tx_hash-2"],
+                HashMap::new(),
             ),
             ScannedBlock::new(
                 "block_hash-2",
                 BlockNumber(20),
                 SlotNumber(25),
                 vec!["tx_hash-3", "tx_hash-4"],
+                HashMap::new(),
             ),
         ];
         let up_to_block_number = BlockNumber(1000);
@@ -938,6 +951,7 @@ mod tests {
                                 BlockNumber(10),
                                 SlotNumber(15),
                                 Vec::<&str>::new(),
+                                HashMap::new(),
                             )]])
                             .last_polled_point(Some(RawCardanoPoint::new(
                                 SlotNumber(25),
@@ -1017,6 +1031,7 @@ mod tests {
             BlockNumber(130),
             SlotNumber(5),
             vec!["tx_hash-6", "tx_hash-7"],
+            HashMap::new(),
         )
         .into_transactions();
         repository
@@ -1030,6 +1045,7 @@ mod tests {
                     BlockNumber(131),
                     SlotNumber(10),
                     vec!["tx_hash-8", "tx_hash-9", "tx_hash-10"],
+                    HashMap::new(),
                 )
                 .into_transactions(),
             )
@@ -1093,6 +1109,7 @@ mod tests {
                     BlockRange::from_block_number(BlockRange::LENGTH * 3).start,
                     SlotNumber(1),
                     vec!["tx_hash-1", "tx_hash-2", "tx_hash-3"],
+                    HashMap::new(),
                 )
                 .into_transactions(),
             )

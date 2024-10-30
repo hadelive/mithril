@@ -320,7 +320,7 @@ mod tests {
         use crate::entities::{BlockNumber, BlockRange, CardanoTransaction, SlotNumber};
         use crate::signable_builder::{
             CardanoTransactionsSignableBuilder, MockBlockRangeRootRetriever,
-            MockTransactionsImporter, SignableBuilder,
+            MockTransactionsImporter, MockTransactionsRetriever, SignableBuilder,
         };
         use std::sync::Arc;
 
@@ -335,12 +335,14 @@ mod tests {
                     BlockNumber(10),
                     SlotNumber(1),
                     "block_hash",
+                    None,
                 ),
                 CardanoTransaction::new(
                     "tx-hash-456",
                     BlockNumber(20),
                     SlotNumber(2),
                     "block_hash",
+                    None,
                 ),
             ];
 
@@ -389,6 +391,9 @@ mod tests {
             transactions: &[CardanoTransaction],
             block_number: BlockNumber,
         ) -> ProtocolMessage {
+            // TODO(hadelive)
+            let transaction_retriever = MockTransactionsRetriever::new();
+            // transaction_retriever_mock_config(&mut transaction_retriever);
             let mut transaction_importer = MockTransactionsImporter::new();
             transaction_importer
                 .expect_import()
@@ -415,6 +420,7 @@ mod tests {
             let cardano_transaction_signable_builder = CardanoTransactionsSignableBuilder::new(
                 Arc::new(transaction_importer),
                 Arc::new(block_range_root_retriever),
+                Arc::new(transaction_retriever),
             );
             cardano_transaction_signable_builder
                 .compute_protocol_message(block_number)

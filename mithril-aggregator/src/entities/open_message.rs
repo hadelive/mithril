@@ -20,7 +20,7 @@ pub struct OpenMessage {
     pub signed_entity_type: SignedEntityType,
 
     /// Message used by the Mithril Protocol
-    pub protocol_message: ProtocolMessage,
+    pub protocol_message: ProtocolMessage, // TODO(hadelive): update ProtocolMessage
 
     /// Has this message been converted into a Certificate?
     pub is_certified: bool,

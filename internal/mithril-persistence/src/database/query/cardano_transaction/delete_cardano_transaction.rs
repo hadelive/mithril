@@ -74,36 +74,42 @@ mod tests {
                 BlockNumber(10),
                 SlotNumber(50),
                 "block-hash-10",
+                None,
             ),
             CardanoTransactionRecord::new(
                 "tx-hash-1",
                 BlockNumber(10),
                 SlotNumber(51),
                 "block-hash-10",
+                None,
             ),
             CardanoTransactionRecord::new(
                 "tx-hash-2",
                 BlockNumber(11),
                 SlotNumber(52),
                 "block-hash-11",
+                None,
             ),
             CardanoTransactionRecord::new(
                 "tx-hash-3",
                 BlockNumber(11),
                 SlotNumber(53),
                 "block-hash-11",
+                None,
             ),
             CardanoTransactionRecord::new(
                 "tx-hash-4",
                 BlockNumber(12),
                 SlotNumber(54),
                 "block-hash-12",
+                None,
             ),
             CardanoTransactionRecord::new(
                 "tx-hash-5",
                 BlockNumber(12),
                 SlotNumber(55),
                 "block-hash-12",
+                None,
             ),
         ]
     }

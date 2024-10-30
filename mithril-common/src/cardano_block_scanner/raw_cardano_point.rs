@@ -106,6 +106,8 @@ impl From<ScannedBlock> for RawCardanoPoint {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use crate::entities::BlockNumber;
 
     use super::*;
@@ -134,6 +136,7 @@ mod tests {
             BlockNumber(31),
             SlotNumber(4),
             Vec::<&str>::new(),
+            HashMap::new(),
         );
         assert_eq!(
             RawCardanoPoint::new(SlotNumber(4), expected_hash.clone()),

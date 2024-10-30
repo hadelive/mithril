@@ -169,6 +169,8 @@ impl ChainReaderBlockStreamer {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use crate::cardano_block_scanner::ScannedBlock;
     use crate::chain_reader::FakeChainReader;
     use crate::entities::SlotNumber;
@@ -189,6 +191,7 @@ mod tests {
                     until_block_number,
                     SlotNumber(100),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
             ChainBlockNextAction::RollForward {
@@ -197,6 +200,7 @@ mod tests {
                     until_block_number,
                     SlotNumber(100),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
         ])));
@@ -231,6 +235,7 @@ mod tests {
                 until_block_number,
                 SlotNumber(100),
                 Vec::<&str>::new(),
+                HashMap::new(),
             )])),
             scanned_blocks
         );
@@ -249,6 +254,7 @@ mod tests {
                     BlockNumber(1),
                     SlotNumber(10),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
             ChainBlockNextAction::RollForward {
@@ -257,6 +263,7 @@ mod tests {
                     BlockNumber(2),
                     SlotNumber(20),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
             ChainBlockNextAction::RollForward {
@@ -265,6 +272,7 @@ mod tests {
                     BlockNumber(3),
                     SlotNumber(30),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
         ])));
@@ -282,8 +290,20 @@ mod tests {
 
         assert_eq!(
             Some(ChainScannedBlocks::RollForwards(vec![
-                ScannedBlock::new("hash-1", BlockNumber(1), SlotNumber(10), Vec::<&str>::new()),
-                ScannedBlock::new("hash-2", BlockNumber(2), SlotNumber(20), Vec::<&str>::new())
+                ScannedBlock::new(
+                    "hash-1",
+                    BlockNumber(1),
+                    SlotNumber(10),
+                    Vec::<&str>::new(),
+                    HashMap::new(),
+                ),
+                ScannedBlock::new(
+                    "hash-2",
+                    BlockNumber(2),
+                    SlotNumber(20),
+                    Vec::<&str>::new(),
+                    HashMap::new(),
+                )
             ])),
             scanned_blocks,
         );
@@ -308,6 +328,7 @@ mod tests {
                     BlockNumber(1),
                     SlotNumber(10),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
             ChainBlockNextAction::RollForward {
@@ -316,6 +337,7 @@ mod tests {
                     BlockNumber(2),
                     SlotNumber(20),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
         ])));
@@ -333,8 +355,20 @@ mod tests {
 
         assert_eq!(
             Some(ChainScannedBlocks::RollForwards(vec![
-                ScannedBlock::new("hash-1", BlockNumber(1), SlotNumber(10), Vec::<&str>::new()),
-                ScannedBlock::new("hash-2", BlockNumber(2), SlotNumber(20), Vec::<&str>::new())
+                ScannedBlock::new(
+                    "hash-1",
+                    BlockNumber(1),
+                    SlotNumber(10),
+                    Vec::<&str>::new(),
+                    HashMap::new(),
+                ),
+                ScannedBlock::new(
+                    "hash-2",
+                    BlockNumber(2),
+                    SlotNumber(20),
+                    Vec::<&str>::new(),
+                    HashMap::new(),
+                )
             ])),
             scanned_blocks,
         );
@@ -353,6 +387,7 @@ mod tests {
                     BlockNumber(1),
                     SlotNumber(10),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
             ChainBlockNextAction::RollForward {
@@ -361,6 +396,7 @@ mod tests {
                     BlockNumber(2),
                     SlotNumber(20),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
             ChainBlockNextAction::RollForward {
@@ -369,6 +405,7 @@ mod tests {
                     BlockNumber(3),
                     SlotNumber(30),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
         ])));
@@ -386,8 +423,20 @@ mod tests {
         let scanned_blocks = block_streamer.poll_next().await.expect("poll_next failed");
         assert_eq!(
             Some(ChainScannedBlocks::RollForwards(vec![
-                ScannedBlock::new("hash-1", BlockNumber(1), SlotNumber(10), Vec::<&str>::new()),
-                ScannedBlock::new("hash-2", BlockNumber(2), SlotNumber(20), Vec::<&str>::new())
+                ScannedBlock::new(
+                    "hash-1",
+                    BlockNumber(1),
+                    SlotNumber(10),
+                    Vec::<&str>::new(),
+                    HashMap::new(),
+                ),
+                ScannedBlock::new(
+                    "hash-2",
+                    BlockNumber(2),
+                    SlotNumber(20),
+                    Vec::<&str>::new(),
+                    HashMap::new(),
+                )
             ])),
             scanned_blocks,
         );
@@ -402,7 +451,8 @@ mod tests {
                 "hash-3",
                 BlockNumber(3),
                 SlotNumber(30),
-                Vec::<&str>::new()
+                Vec::<&str>::new(),
+                HashMap::new(),
             ),])),
             scanned_blocks,
         );
@@ -488,6 +538,7 @@ mod tests {
                     BlockNumber(80),
                     SlotNumber(8),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
             ChainBlockNextAction::RollForward {
@@ -496,6 +547,7 @@ mod tests {
                     BlockNumber(90),
                     SlotNumber(9),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
             ChainBlockNextAction::RollForward {
@@ -504,6 +556,7 @@ mod tests {
                     BlockNumber(100),
                     SlotNumber(10),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
             ChainBlockNextAction::RollBackward {
@@ -524,8 +577,20 @@ mod tests {
 
         assert_eq!(
             Some(ChainScannedBlocks::RollForwards(vec![
-                ScannedBlock::new("hash-8", BlockNumber(80), SlotNumber(8), Vec::<&str>::new()),
-                ScannedBlock::new("hash-9", BlockNumber(90), SlotNumber(9), Vec::<&str>::new())
+                ScannedBlock::new(
+                    "hash-8",
+                    BlockNumber(80),
+                    SlotNumber(8),
+                    Vec::<&str>::new(),
+                    HashMap::new(),
+                ),
+                ScannedBlock::new(
+                    "hash-9",
+                    BlockNumber(90),
+                    SlotNumber(9),
+                    Vec::<&str>::new(),
+                    HashMap::new(),
+                )
             ])),
             scanned_blocks,
         );
@@ -545,6 +610,7 @@ mod tests {
                     BlockNumber(80),
                     SlotNumber(8),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
             ChainBlockNextAction::RollForward {
@@ -553,6 +619,7 @@ mod tests {
                     BlockNumber(90),
                     SlotNumber(9),
                     Vec::<&str>::new(),
+                    HashMap::new(),
                 ),
             },
             ChainBlockNextAction::RollBackward {

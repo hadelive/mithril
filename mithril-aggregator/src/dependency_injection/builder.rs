@@ -775,6 +775,7 @@ impl DependenciesBuilder {
         Ok(self.transaction_repository.as_ref().cloned().unwrap())
     }
 
+    // hadelive(pallas)
     async fn build_chain_block_reader(&mut self) -> Result<Arc<Mutex<dyn ChainBlockReader>>> {
         let chain_block_reader = PallasChainReader::new(
             &self.configuration.cardano_node_socket_path,
@@ -1135,6 +1136,7 @@ impl DependenciesBuilder {
             &self.configuration.db_directory,
             self.root_logger(),
         ));
+        let transaction_retriever = self.get_transaction_repository().await?;
         let transactions_importer = self.get_transactions_importer().await?;
         let block_range_root_retriever = self.get_transaction_repository().await?;
         let cardano_transactions_builder = Arc::new(CardanoTransactionsSignableBuilder::<
@@ -1142,6 +1144,7 @@ impl DependenciesBuilder {
         >::new(
             transactions_importer,
             block_range_root_retriever,
+            transaction_retriever,
         ));
         let cardano_stake_distribution_builder = Arc::new(
             CardanoStakeDistributionSignableBuilder::new(self.get_stake_store().await?),

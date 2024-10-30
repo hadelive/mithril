@@ -56,8 +56,13 @@ async fn main() -> MithrilResult<()> {
         .unwrap();
 
     info!(logger, "Verifying the proof…",);
+    info!(logger, "{}", format!("{:?}", cardano_transaction_proof),);
     let verified_transactions = cardano_transaction_proof.verify().unwrap();
-
+    info!(
+        logger,
+        "verified_transactions {}",
+        format!("{:?}", verified_transactions),
+    );
     info!(
         logger,
         "Fetching the associated certificate and verifying the certificate chain…",
@@ -67,7 +72,8 @@ async fn main() -> MithrilResult<()> {
         .verify_chain(&cardano_transaction_proof.certificate_hash)
         .await
         .unwrap();
-
+    info!(logger, "certificate {}", format!("{:?}", certificate),);
+    info!(logger, "certificate {}", format!("{:?}", certificate),);
     info!(
         logger,
         "Verify that the proof is signed in the associated certificate",

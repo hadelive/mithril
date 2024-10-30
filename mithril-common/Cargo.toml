@@ -50,10 +50,10 @@ kes-summed-ed25519 = { version = "0.2.1", features = [
 mithril-stm = { path = "../mithril-stm", version = "0.3", default-features = false }
 nom = "7.1.3"
 pallas-addresses = { version = "0.30.2", optional = true }
-pallas-codec = { version = "0.30.2", optional = true }
+pallas-codec = { version = "0.30.2" }
 pallas-hardano = { version = "0.30.2", optional = true }
 pallas-network = { version = "0.30.2", optional = true }
-pallas-primitives = { version = "0.30.2", optional = true }
+pallas-primitives = { version = "0.30.2" }
 pallas-traverse = { version = "0.30.2", optional = true }
 rand_chacha = "0.3.1"
 rand_core = "0.6.4"
@@ -100,10 +100,10 @@ fs = [
     "tokio/fs",
     "tokio/process",
     "dep:pallas-addresses",
-    "dep:pallas-codec",
+    # "dep:pallas-codec",
     "dep:pallas-hardano",
     "dep:pallas-network",
-    "dep:pallas-primitives",
+    # "dep:pallas-primitives",
     "dep:pallas-traverse",
 ]
 

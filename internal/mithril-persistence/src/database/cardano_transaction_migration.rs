@@ -13,6 +13,7 @@ pub fn get_migrations() -> Vec<SqlMigration> {
             1,
             r#"
 create table cardano_tx (
+    bridge_metadata         text,
     transaction_hash        text      not null,
     block_number            integer   not null,
     immutable_file_number   integer   not null,

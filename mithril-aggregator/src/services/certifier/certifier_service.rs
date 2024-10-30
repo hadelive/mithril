@@ -224,6 +224,7 @@ impl CertifierService for MithrilCertifierService {
         Ok(open_message_record.map(|record| record.into()))
     }
 
+    // TODO(hadelive): update this?
     async fn create_certificate(
         &self,
         signed_entity_type: &SignedEntityType,
